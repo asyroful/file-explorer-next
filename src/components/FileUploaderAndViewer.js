@@ -2,7 +2,6 @@
 "use client";
 
 import { useRef } from 'react';
-import Link from 'next/link';
 
 export default function FileUploaderAndViewer({ file, onUpdate }) {
   const fileInputRef = useRef(null);
@@ -27,10 +26,6 @@ export default function FileUploaderAndViewer({ file, onUpdate }) {
       <div className="flex justify-between items-center p-4 bg-gray-900 rounded-t-lg">
         <h2 className="text-lg font-bold text-gray-300">{file.name}</h2>
         <div>
-          {/* Tombol untuk membuka di tab baru */}
-          <Link href={`/view/${file.id}`} target="_blank" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 mr-2">
-            Open in New Tab
-          </Link>
           {/* Tombol untuk update/upload */}
           <button onClick={triggerFileUpload} className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700">
             Upload & Replace HTML

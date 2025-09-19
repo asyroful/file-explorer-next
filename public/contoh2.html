@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Animasi Kartu Interaktif</title>
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f1f5f9; margin: 0; }
+    .container { display: flex; flex-direction: column; align-items: center; margin-top: 40px; }
+    .card {
+      background: linear-gradient(135deg, #38bdf8 0%, #6366f1 100%);
+      color: #fff;
+      width: 340px;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(99,102,241,0.15);
+      padding: 32px 24px;
+      text-align: center;
+      transition: transform 0.3s, box-shadow 0.3s;
+      margin-bottom: 24px;
+    }
+    .card:hover {
+      transform: scale(1.04) rotate(-2deg);
+      box-shadow: 0 16px 48px rgba(99,102,241,0.25);
+    }
+    .avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 16px rgba(56,189,248,0.2);
+      border: 3px solid #fff;
+      object-fit: cover;
+    }
+    .btn {
+      background: #fbbf24;
+      color: #1e293b;
+      border: none;
+      padding: 10px 24px;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-top: 18px;
+      font-weight: bold;
+      transition: background 0.2s, color 0.2s;
+    }
+    .btn:hover {
+      background: #f59e42;
+      color: #fff;
+    }
+    .hidden {
+      display: none;
+    }
+    .bio {
+      margin-top: 16px;
+      font-size: 1.05rem;
+      line-height: 1.6;
+      color: #e0e7ff;
+      transition: opacity 0.3s;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Avatar" class="avatar">
+      <h2>Rizky Pratama</h2>
+      <p>Frontend Developer & UI Enthusiast</p>
+      <button class="btn" id="showBioBtn">Lihat Bio</button>
+      <div class="bio hidden" id="bio">
+        Rizky adalah pengembang web yang suka bereksperimen dengan animasi dan desain UI modern. Ia percaya bahwa tampilan yang menarik bisa meningkatkan pengalaman pengguna!
+      </div>
+    </div>
+  </div>
+  <script>
+    const btn = document.getElementById('showBioBtn');
+    const bio = document.getElementById('bio');
+    let shown = false;
+    btn.addEventListener('click', function() {
+      shown = !shown;
+      bio.classList.toggle('hidden', !shown);
+      btn.textContent = shown ? 'Sembunyikan Bio' : 'Lihat Bio';
+    });
+  </script>
+</body>
+</html>

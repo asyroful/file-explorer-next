@@ -15,7 +15,10 @@ let nextFileId = 1;
 // CRUD FOLDER
 export const getFolders = () => folders.map(folder => ({
   ...folder,
-  files: files.filter(file => file.folderId === folder.id),
+  files: files.filter(file => file.folderId === folder.id).map(f => ({
+    id: f.id,
+    name: f.name,
+  })),
 }));
 
 export const getFolder = (id) => {
@@ -64,11 +67,10 @@ export const addFile = (folderId, name, content) => {
 };
 
 // Ubah updateFile untuk menerima konten dan nama baru
-export const updateFile = (id, newContent, newName) => {
+export const updateFile = (id, newContent) => {
   const file = files.find(f => f.id === parseInt(id));
   if (file) {
     file.content = newContent;
-    file.name = newName; // Perbarui nama juga
     return file;
   }
   return null;

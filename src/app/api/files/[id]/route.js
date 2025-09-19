@@ -30,7 +30,7 @@ export async function PUT(request, { params }) {
 
     const buffer = await file.arrayBuffer();
     const content = Buffer.from(buffer).toString('utf-8');
-    const updated = updateFile(params.id, content, file.name); // Kirim juga nama baru
+    const updated = updateFile(params.id, content);
 
     if (!updated) {
       return NextResponse.json({ message: 'File not found' }, { status: 404 });

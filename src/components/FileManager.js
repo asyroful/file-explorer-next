@@ -33,11 +33,11 @@ function ConfirmModal({ open, title, message, onConfirm, onCancel }) {
 export default function FileManager() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [apiLoading, setApiLoading] = useState(false);
   const [selectedFolderId, setSelectedFolderId] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
   const [contextMenu, setContextMenu] = useState(null);
   const [addingFileToFolderId, setAddingFileToFolderId] = useState(null);
-  const [newFileName, setNewFileName] = useState('');
   const { addToast } = useContext(ToastContext);
   const [confirmModal, setConfirmModal] = useState({ open: false, fileId: null, folderId: null });
   const [confirmFolderModal, setConfirmFolderModal] = useState({ open: false, folderId: null });
@@ -61,6 +61,7 @@ export default function FileManager() {
   }, [addToast]);
 
   const handleAddFolder = async (name) => {
+    setApiLoading(true);
     try {
       const res = await fetch('/api/folders', {
         method: 'POST',
@@ -73,10 +74,13 @@ export default function FileManager() {
       addToast(`Folder "${name}" created successfully.`, 'success');
     } catch (error) {
       addToast(error.message, 'error');
+    } finally {
+      setApiLoading(false);
     }
   };
 
   const handleAddFile = async (folderId, file) => {
+    setApiLoading(true);
     try {
       const payload = {
         folderId: folderId,
@@ -97,12 +101,12 @@ export default function FileManager() {
       if (!folderRes.ok) throw new Error('Gagal mengambil data folder setelah upload file');
       const updatedData = await folderRes.json();
       setData(updatedData);
-      addToast(`File "${newFileName || file}" berhasil di-upload.`, 'success');
+      addToast(`File "${file}" berhasil di-upload.`, 'success');
       setAddingFileToFolderId(null); // reset agar input add file hilang
     } catch (error) {
       addToast(error.message, 'error');
     } finally {
-      setNewFileName('');
+      setApiLoading(false);
     }
   };
 
@@ -116,6 +120,7 @@ export default function FileManager() {
   };
 
   const handleFileSelect = async (file, folderId) => {
+    setApiLoading(true);
     setSelectedFolderId(folderId);
     // Fetch konten file saat dipilih
     try {
@@ -126,10 +131,13 @@ export default function FileManager() {
     } catch (error) {
         addToast(error.message, 'error');
         setSelectedFile(file); // fallback
+    } finally {
+        setApiLoading(false);
     }
   };
   
   const handleUpdateFile = async (fileId, file) => {
+    setApiLoading(true);
     const formData = new FormData();
     formData.append('file', file);
     try {
@@ -139,20 +147,19 @@ export default function FileManager() {
       });
       if (!res.ok) throw new Error('Failed to update file');
       const updatedFile = await res.json();
-      
-      // Update state data
+      // Update state data, hanya update content, name tetap
       const newData = data.map(folder => ({
         ...folder,
-        files: folder.files.map(f => f.id === fileId ? updatedFile : f)
+        files: folder.files.map(f => f.id === fileId ? { ...f, content: updatedFile.content } : f)
       }));
       setData(newData);
-      
       // Update state selectedFile
-      setSelectedFile(updatedFile);
-      
+      setSelectedFile({ ...selectedFile, content: updatedFile.content });
       addToast('File updated successfully!', 'success');
     } catch (error) {
       addToast(error.message, 'error');
+    } finally {
+      setApiLoading(false);
     }
   };
 
@@ -161,6 +168,7 @@ export default function FileManager() {
   };
 
   const confirmDeleteFile = async () => {
+    setApiLoading(true);
     const { fileId, folderId } = confirmModal;
     try {
       const res = await fetch(`/api/files/${fileId}`, { method: 'DELETE' });
@@ -173,13 +181,13 @@ export default function FileManager() {
       setData(newData);
       if (selectedFile && selectedFile.id === fileId) {
         setSelectedFile(null);
-        setFileContent('');
       }
       addToast('File deleted successfully.', 'success');
     } catch (error) {
       addToast(error.message, 'error');
     } finally {
       setConfirmModal({ open: false, fileId: null, folderId: null });
+      setApiLoading(false);
     }
   };
 
@@ -188,6 +196,7 @@ export default function FileManager() {
   };
 
   const confirmDeleteFolder = async () => {
+    setApiLoading(true);
     const { folderId } = confirmFolderModal;
     try {
       const res = await fetch(`/api/folders/${folderId}`, { method: 'DELETE' });
@@ -196,13 +205,13 @@ export default function FileManager() {
       if (selectedFolderId === folderId) {
         setSelectedFolderId(null);
         setSelectedFile(null);
-        setFileContent('');
       }
       addToast('Folder deleted successfully.', 'success');
     } catch (error) {
       addToast(error.message, 'error');
     } finally {
       setConfirmFolderModal({ open: false, folderId: null });
+      setApiLoading(false);
     }
   };
 
@@ -222,6 +231,14 @@ export default function FileManager() {
 
   return (
     <div className="flex h-screen bg-gray-800 text-white" onClick={closeContextMenu}>
+      {apiLoading && (
+        <div className="fixed inset-0 flex items-center justify-center" style={{ zIndex: 100 }}>
+          <div className="absolute inset-0 bg-white/50 backdrop-blur-sm" style={{ zIndex: 100 }}></div>
+          <div className="relative z-[101]">
+            <div className="w-16 h-16 border-4 border-t-4 border-white border-t-blue-500 rounded-full animate-spin"></div>
+          </div>
+        </div>
+      )}
       <div className="w-80 bg-gray-900 p-4 flex flex-col">
         <FolderList
           folders={data}
