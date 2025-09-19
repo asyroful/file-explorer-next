@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Contoh HTML Render</title>
+  <style>
+    body { font-family: Arial; background: #f8fafc; color: #222; }
+    h1 { color: #2563eb; transition: color 0.3s; }
+    p { margin-top: 8px; }
+    .box { background: #e0e7ff; padding: 16px; border-radius: 8px; margin-top: 16px; transition: box-shadow 0.3s; }
+    .btn {
+      background: #2563eb;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1rem;
+      margin-top: 16px;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .btn:hover {
+      background: #1e40af;
+      transform: scale(1.05);
+    }
+    .active {
+      color: #16a34a !important;
+      box-shadow: 0 0 0 4px #bbf7d0;
+    }
+  </style>
+</head>
+<body>
+  <h1 id="judul">Halo, ini preview HTML!</h1>
+  <p>File ini diupload dan langsung dirender di editor.</p>
+  <div class="box" id="box">Contoh box dengan styling Tailwind-like.</div>
+  <button class="btn" id="btn">Klik untuk interaksi!</button>
+  <script>
+    const btn = document.getElementById('btn');
+    const judul = document.getElementById('judul');
+    const box = document.getElementById('box');
+    let active = false;
+    btn.addEventListener('click', function() {
+      active = !active;
+      if (active) {
+        judul.textContent = 'Interaksi berhasil!';
+        judul.classList.add('active');
+        box.classList.add('active');
+        btn.textContent = 'Reset';
+      } else {
+        judul.textContent = 'Halo, ini preview HTML!';
+        judul.classList.remove('active');
+        box.classList.remove('active');
+        btn.textContent = 'Klik untuk interaksi!';
+      }
+    });
+  </script>
+</body>
+</html>
