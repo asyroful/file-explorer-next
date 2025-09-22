@@ -61,7 +61,7 @@ export const getFile = (id) => files.find(f => f.id === parseInt(id)) || null;
 
 // Ubah addFile untuk menerima konten
 export const addFile = (folderId, name, content) => {
-  const newFile = { id: nextFileId++, folderId: parseInt(folderId), name, content };
+  const newFile = { id: nextFileId++, folderId: parseInt(folderId), name, content, publicUrl: null };
   files.push(newFile);
   return newFile;
 };
@@ -71,6 +71,7 @@ export const updateFile = (id, newContent) => {
   const file = files.find(f => f.id === parseInt(id));
   if (file) {
     file.content = newContent;
+    if (arguments.length > 2) file.publicUrl = arguments[2];
     return file;
   }
   return null;

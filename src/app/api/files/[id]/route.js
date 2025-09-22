@@ -1,6 +1,9 @@
 // src/app/api/files/[id]/route.js
 import { NextResponse } from 'next/server';
 import { updateFile, deleteFile, getFile } from '@/lib/data'; // Tambahkan getFile
+import path from 'path';
+import fs from 'fs';
+import AdmZip from 'adm-zip';
 
 // Tambahkan GET handler untuk mengambil konten file
 export async function GET(request, { params }) {
@@ -19,18 +22,40 @@ export async function PUT(request, { params }) {
   try {
     const formData = await request.formData();
     const file = formData.get('file');
-
-    if (!file) {
-      return NextResponse.json({ message: 'No file provided for update' }, { status: 400 });
-    }
-    
-    if (!file.name.endsWith('.html')) {
-      return NextResponse.json({ message: 'Only .html files are allowed' }, { status: 400 });
+    if (!file || !file.name.endsWith('.zip')) {
+      return NextResponse.json({ message: 'Harap unggah file .zip.' }, { status: 400 });
     }
 
-    const buffer = await file.arrayBuffer();
-    const content = Buffer.from(buffer).toString('utf-8');
-    const updated = updateFile(params.id, content);
+    // Buat folder unik untuk ekstraksi
+    const uniqueFolder = `file-${params.id}-${Date.now()}`;
+    const extractPath = path.join(process.cwd(), 'public', 'uploads', uniqueFolder);
+    fs.mkdirSync(extractPath, { recursive: true });
+
+    // Ekstrak ZIP
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const zip = new AdmZip(buffer);
+    zip.extractAllTo(extractPath, true);
+
+    // Debug: tampilkan isi folder hasil ekstraksi
+    const extractedFiles = fs.readdirSync(extractPath);
+    console.log('Isi folder hasil ekstraksi:', extractedFiles);
+
+    // Pastikan index.html ada
+    const indexPath = path.join(extractPath, 'index.html');
+    if (!fs.existsSync(indexPath)) {
+      // Selalu kirim daftar file hasil ekstraksi di response
+      const filesInFolder = fs.readdirSync(extractPath);
+      fs.rmSync(extractPath, { recursive: true, force: true });
+      return NextResponse.json({ message: 'File ZIP harus berisi index.html di dalamnya.', extractedFiles: filesInFolder }, { status: 400 });
+    }
+
+    // Baca isi index.html
+    const htmlContent = fs.readFileSync(indexPath, 'utf-8');
+    // Public URL ke index.html
+    const publicUrl = `/uploads/${uniqueFolder}/index.html`;
+
+    // Update file di database
+    const updated = updateFile(params.id, htmlContent, publicUrl);
 
     if (!updated) {
       return NextResponse.json({ message: 'File not found' }, { status: 404 });
