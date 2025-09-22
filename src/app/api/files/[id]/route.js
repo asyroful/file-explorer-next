@@ -36,10 +36,6 @@ export async function PUT(request, { params }) {
     const zip = new AdmZip(buffer);
     zip.extractAllTo(extractPath, true);
 
-    // Debug: tampilkan isi folder hasil ekstraksi
-    const extractedFiles = fs.readdirSync(extractPath);
-    console.log('Isi folder hasil ekstraksi:', extractedFiles);
-
     // Pastikan index.html ada
     const indexPath = path.join(extractPath, 'index.html');
     if (!fs.existsSync(indexPath)) {
